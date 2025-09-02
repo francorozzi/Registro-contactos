@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Contactos Persistente</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1202201e 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding-top: 20px;
+            padding-bottom: 50px;
+        }
+        .card {
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            border: none;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #db1578 0%, #d6d318 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+            text-align: center;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3494e6 0%, #3457e6 100%);
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .contact-table thead {
+            background: linear-gradient(135deg, #3494e6 0%, #3457e6 100%);
+            color: white;
+        }
+        .contact-table tbody tr {
+            transition: all 0.3s;
+        }
+        .contact-table tbody tr:hover {
+            background-color: #f1f7ff;
+            transform: scale(1.01);
+        }
+        .action-buttons .btn {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.875rem;
+            margin: 0 2px;
+        }
+        .empty-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+            font-style: italic;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        .form-control:focus {
+            border-color: #3494e6;
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 230, 0.25);
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3494e6 0%, #3457e6 100%);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .feature-icon {
+            font-size: 18px;
+            margin-right: 5px;
+            color: #3494e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <div class="logo">
+                <i class="fas fa-address-book"></i>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2><i class="fas fa-user-plus me-2"></i>Registro de Contactos</h2>
+                        <p class="mb-0">Los contactos se guardarán en tu navegador</p>
+                    </div>
+                    <div class="card-body">
+                        <form id="contactForm">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="name" class="form-label"><i class="feature-icon fas fa-user"></i>Nombre completo</label>
+                                    <input type="text" class="form-control" id="name" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="email" class="form-label"><i class="feature-icon fas fa-envelope"></i>Email</label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="phone" class="form-label"><i class="feature-icon fas fa-phone"></i>Teléfono</label>
+                                    <input type="tel" class="form-control" id="phone" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 mt-3">
+                                <i class="fas fa-plus-circle me-2"></i>Agregar Contacto
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list me-2"></i>Lista de Contactos</h3>
+                        <p class="mb-0">Total: <span id="totalContacts">0</span> contactos</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">Mis Contactos</h4>
+                            <button id="clearAllBtn" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash me-1"></i>Eliminar Todos
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover contact-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Email</th>
+                                        <th>Teléfono</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contactsTableBody">
+                                    <!-- Los contactos se insertarán aquí dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="emptyMessage" class="empty-message">
+                            <i class="fas fa-address-book fa-3x mb-3"></i>
+                            <h4>No hay contactos registrados</h4>
+                            <p>Agrega tu primer contacto usando el formulario superior</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Clave para almacenar en localStorage
+        const STORAGE_KEY = 'savedContacts';
+
+        // Elementos DOM
+        const contactForm = document.getElementById('contactForm');
+        const contactsTableBody = document.getElementById('contactsTableBody');
+        const emptyMessage = document.getElementById('emptyMessage');
+        const totalContactsSpan = document.getElementById('totalContacts');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+
+        // Cargar contactos desde localStorage al iniciar
+        let contacts = loadContacts();
+
+        // Función para cargar contactos desde localStorage
+        function loadContacts() {
+            const savedContacts = localStorage.getItem(STORAGE_KEY);
+            return savedContacts ? JSON.parse(savedContacts) : [];
+        }
+
+        // Función para guardar contactos en localStorage
+        function saveContacts() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(contacts));
+            updateTotalContacts();
+        }
+
+        // Función para actualizar el contador de contactos
+        function updateTotalContacts() {
+            totalContactsSpan.textContent = contacts.length;
+        }
+
+        // Función para agregar un contacto
+        function addContact(name, email, phone) {
+            const newContact = {
+                id: Date.now(), // ID único basado en timestamp
+                name,
+                email,
+                phone,
+                date: new Date().toLocaleDateString('es-ES')
+            };
+            
+            contacts.push(newContact);
+            saveContacts();
+            updateContactsTable();
+            contactForm.reset();
+            
+            // Mostrar notificación
+            showNotification(`Contacto "${name}" agregado correctamente`, 'success');
+        }
+
+        // Función para eliminar un contacto
+        function deleteContact(id) {
+            const contact = contacts.find(c => c.id === id);
+            contacts = contacts.filter(contact => contact.id !== id);
+            saveContacts();
+            updateContactsTable();
+            
+            // Mostrar notificación
+            showNotification(`Contacto "${contact.name}" eliminado`, 'info');
+        }
+
+        // Función para eliminar todos los contactos
+        function clearAllContacts() {
+            if (contacts.length === 0) return;
+            
+            if (confirm('¿Estás seguro de que quieres eliminar todos los contactos?')) {
+                contacts = [];
+                saveContacts();
+                updateContactsTable();
+                
+                // Mostrar notificación
+                showNotification('Todos los contactos han sido eliminados', 'info');
+            }
+        }
+
+        // Función para mostrar notificaciones
+        function showNotification(message, type = 'info') {
+            // Crear elemento de notificación
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Agregar al documento
+            document.body.appendChild(notification);
+            
+            // Eliminar después de 3 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        // Función para actualizar la tabla de contactos
+        function updateContactsTable() {
+            contactsTableBody.innerHTML = '';
+            
+            if (contacts.length === 0) {
+                emptyMessage.style.display = 'block';
+                return;
+            }
+            
+            emptyMessage.style.display = 'none';
+            
+            contacts.forEach(contact => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${contact.name}</td>
+                    <td>${contact.email}</td>
+                    <td>${contact.phone}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-danger btn-sm" onclick="deleteContact(${contact.id})">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </td>
+                `;
+                contactsTableBody.appendChild(row);
+            });
+        }
+
+        // Event listener para el formulario
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            
+            if (name && email && phone) {
+                // Validar email
+                if (!isValidEmail(email)) {
+                    showNotification('Por favor, ingresa un email válido', 'danger');
+                    return;
+                }
+                
+                addContact(name, email, phone);
+            } else {
+                showNotification('Por favor, completa todos los campos', 'warning');
+            }
+        });
+
+        // Event listener para el botón de eliminar todos
+        clearAllBtn.addEventListener('click', clearAllContacts);
+
+        // Función para validar email
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Inicializar la tabla y el contador
+        updateContactsTable();
+        updateTotalContacts();
+
+        // Hacer las funciones disponibles globalmente para los onclick
+        window.deleteContact = deleteContact;
+    </script>
+</body>
+</html>

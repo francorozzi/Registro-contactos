@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Contactos</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #d0d4d844;
+            padding-top: 20px;
+            padding-bottom: 50px;
+        }
+        .card {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            border: none;
+        }
+        .card-header {
+            background-color: #3d2592;
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .btn-primary {
+            background-color: #e65411;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .contact-table {
+            box-shadow: 0 2px 5px rgba(224, 21, 48, 0.685);
+        }
+        .contact-table thead {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .highlight {
+            background-color: #ee7f17;
+            transition: background-color 0.3s;
+        }
+        .action-buttons .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header text-center py-3">
+                        <h2><i class="fas fa-address-book me-2"></i>Registro de Contactos</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="contactForm">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Nombre completo</label>
+                                <input type="text" class="form-control" id="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="phone" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-plus-circle me-2"></i>Agregar Contacto
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header text-center py-3">
+                        <h3><i class="fas fa-list me-2"></i>Lista de Contactos</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover contact-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Email</th>
+                                        <th>Teléfono</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contactsTableBody">
+                                    <!-- Los contactos se insertarán aquí dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="emptyMessage" class="empty-message">
+                            No hay contactos registrados. Agrega tu primer contacto.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+            
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Array para almacenar los contactos (simula el backend)
+        let contacts = [];
+
+        // Elementos DOM
+        const contactForm = document.getElementById('contactForm');
+        const contactsTableBody = document.getElementById('contactsTableBody');
+        const emptyMessage = document.getElementById('emptyMessage');
+
+        // Función para agregar un contacto
+        function addContact(name, email, phone) {
+            const newContact = {
+                id: Date.now(), // ID único basado en timestamp
+                name,
+                email,
+                phone
+            };
+            
+            contacts.push(newContact);
+            updateContactsTable();
+            contactForm.reset();
+            
+            // Simular envío al backend
+            simulateBackendSave(newContact);
+        }
+
+        // Función para eliminar un contacto
+        function deleteContact(id) {
+            contacts = contacts.filter(contact => contact.id !== id);
+            updateContactsTable();
+            
+            // Simular eliminación en backend
+            simulateBackendDelete(id);
+        }
+
+        // Función para actualizar la tabla de contactos
+        function updateContactsTable() {
+            contactsTableBody.innerHTML = '';
+            
+            if (contacts.length === 0) {
+                emptyMessage.style.display = 'block';
+                return;
+            }
+            
+            emptyMessage.style.display = 'none';
+            
+            contacts.forEach(contact => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${contact.name}</td>
+                    <td>${contact.email}</td>
+                    <td>${contact.phone}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-danger btn-sm" onclick="deleteContact(${contact.id})">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </td>
+                `;
+                contactsTableBody.appendChild(row);
+            });
+        }
+
+        // Simulación de envío al backend
+        function simulateBackendSave(contact) {
+            console.log('Simulando envío al backend:', contact);
+            // En una aplicación real, aquí haríamos una petición fetch o axios al servidor
+            /*
+            fetch('http://localhost:3000/contacts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(contact)
+            })
+            .then(response => response.json())
+            .then(data => console.log('Éxito:', data))
+            .catch(error => console.error('Error:', error));
+            */
+        }
+
+        // Simulación de eliminación en backend
+        function simulateBackendDelete(id) {
+            console.log('Simulando eliminación en backend del contacto con ID:', id);
+            // En una aplicación real, aquí haríamos una petición fetch o axios al servidor
+            /*
+            fetch(`http://localhost:3000/contacts/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => console.log('Éxito:', data))
+            .catch(error => console.error('Error:', error));
+            */
+        }
+
+        // Event listener para el formulario
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            
+            if (name && email && phone) {
+                addContact(name, email, phone);
+            } else {
+                alert('Por favor, complete todos los campos.');
+            }
+        });
+
+        // Inicializar la tabla
+        updateContactsTable();
+    </script>
+
+        <a href="C:\Users\file-upload\index.html">Agregar archivo de contacto</a>
+</body>
+</html>
